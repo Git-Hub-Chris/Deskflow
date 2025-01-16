@@ -20,13 +20,13 @@
 #define DESKFLOW_LIB_IO_FILESYSTEM_H
 
 #include <cstdio>
-#include <ghc/fs_fwd.hpp>
+#include <filesystem>
 #include <ios>
 #include <iosfwd>
 
 namespace deskflow {
 
-namespace fs = ghc::filesystem;
+namespace fs = std::filesystem;
 
 void open_utf8_path(std::ifstream &stream, const fs::path &path, std::ios_base::openmode mode = std::ios_base::in);
 void open_utf8_path(std::ofstream &stream, const fs::path &path, std::ios_base::openmode mode = std::ios_base::out);
