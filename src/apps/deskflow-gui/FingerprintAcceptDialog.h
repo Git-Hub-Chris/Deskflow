@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "inputleap/AppRole.h"
+#include "deskflow/AppRole.h"
 #include "net/FingerprintData.h"
 #include <QDialog>
 #include <memory>
