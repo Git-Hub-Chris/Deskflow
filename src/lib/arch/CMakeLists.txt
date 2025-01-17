@@ -75,8 +75,9 @@ elseif(UNIX)
   )
 endif()
 
-add_library(arch STATIC 
-Arch.h Arch.cpp ${PLATFORM_CODE}
+add_library(arch STATIC ${PLATFORM_CODE}
+  Arch.cpp
+  Arch.h
   ArchConsoleStd.cpp
   ArchConsoleStd.h
   ArchDaemonNone.cpp
