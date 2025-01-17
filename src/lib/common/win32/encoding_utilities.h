@@ -16,38 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DESKFLOW_LIB_NET_FINGERPRINT_DATA_H
-#define DESKFLOW_LIB_NET_FINGERPRINT_DATA_H
+#ifndef DESKFLOW_LIB_COMMON_WIN32_ENCODING_UTILITIES_H
+#define DESKFLOW_LIB_COMMON_WIN32_ENCODING_UTILITIES_H
 
-#include <cstdint>
 #include <string>
 #include <vector>
+#include <windows.h>
 
-namespace deskflow {
+std::string win_wchar_to_utf8(const WCHAR *utfStr);
+std::vector<WCHAR> utf8_to_win_char(const std::string &str);
 
-enum FingerprintType
-{
-  INVALID,
-  SHA1, // deprecated
-  SHA256,
-};
-
-struct FingerprintData
-{
-  std::string algorithm;
-  std::vector<std::uint8_t> data;
-
-  bool valid() const
-  {
-    return !algorithm.empty();
-  }
-
-  bool operator==(const FingerprintData &other) const;
-};
-
-const char *fingerprint_type_to_string(FingerprintType type);
-FingerprintType fingerprint_type_from_string(const std::string &type);
-
-} // namespace deskflow
-
-#endif // DESKFLOW_LIB_NET_FINGERPRINT_TYPE_H
+#endif

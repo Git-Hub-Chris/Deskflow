@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "FingerprintDatabase.h"
 #include "base/String.h"
 #include "io/filesystem.h"
@@ -37,8 +38,6 @@ const char *fingerprint_type_to_string(FingerprintType type)
     return "sha1";
   case FingerprintType::SHA256:
     return "sha256";
-  default:
-    break;
   }
   return "invalid";
 }

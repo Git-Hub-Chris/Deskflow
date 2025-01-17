@@ -15,10 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#ifndef DESKFLOW_LIB_DESKFLOW_DESKFLOW_TYPE_H
+#define DESKFLOW_LIB_DESKFLOW_DESKFLOW_TYPE_H
 
 enum class DeskflowType
 {
   Server,
   Client
 };
+
+#endif // DESKFLOW_LIB_DESKFLOW_DESKFLOW_TYPE_H

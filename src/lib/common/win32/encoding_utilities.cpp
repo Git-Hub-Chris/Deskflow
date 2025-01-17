@@ -16,38 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DESKFLOW_LIB_NET_FINGERPRINT_DATA_H
-#define DESKFLOW_LIB_NET_FINGERPRINT_DATA_H
+#include "encoding_utilities.h"
+#include <stringapiset.h>
 
-#include <cstdint>
-#include <string>
-#include <vector>
-
-namespace deskflow {
-
-enum FingerprintType
+std::string win_wchar_to_utf8(const WCHAR *utfStr)
 {
-  INVALID,
-  SHA1, // deprecated
-  SHA256,
-};
+  int utfLength = lstrlenW(utfStr);
+  int mbLength = WideCharToMultiByte(CP_UTF8, 0, utfStr, utfLength, NULL, 0, NULL, NULL);
+  std::string mbStr(mbLength, 0);
+  WideCharToMultiByte(CP_UTF8, 0, utfStr, utfLength, &mbStr[0], mbLength, NULL, NULL);
+  return mbStr;
+}
 
-struct FingerprintData
+std::vector<WCHAR> utf8_to_win_char(const std::string &str)
 {
-  std::string algorithm;
-  std::vector<std::uint8_t> data;
-
-  bool valid() const
-  {
-    return !algorithm.empty();
-  }
-
-  bool operator==(const FingerprintData &other) const;
-};
-
-const char *fingerprint_type_to_string(FingerprintType type);
-FingerprintType fingerprint_type_from_string(const std::string &type);
-
-} // namespace deskflow
-
-#endif // DESKFLOW_LIB_NET_FINGERPRINT_TYPE_H
+  int result_len = MultiByteToWideChar(CP_UTF8, 0, str.data(), str.size(), NULL, 0);
+  std::vector<WCHAR> result;
+  result.resize(result_len + 1, 0);
+  MultiByteToWideChar(CP_UTF8, 0, str.data(), str.size(), result.data(), result_len);
+  return result;
+}

@@ -29,6 +29,12 @@
 #include <openssl/x509v3.h>
 #include <stdexcept>
 
+#if SYSAPI_WIN32
+// Windows builds require a shim that makes it possible to link to different
+// versions of the Win32 C runtime. See OpenSSL FAQ.
+#include <openssl/applink.c>
+#endif
+
 namespace deskflow {
 
 namespace {
@@ -40,8 +46,6 @@ const EVP_MD *get_digest_for_type(FingerprintType type)
     return EVP_sha1();
   case FingerprintType::SHA256:
     return EVP_sha256();
-  default:
-    break;
   }
   throw std::runtime_error("Unknown fingerprint type " + std::to_string(static_cast<int>(type)));
 }
@@ -102,8 +106,8 @@ FingerprintData get_ssl_cert_fingerprint(X509 *cert, FingerprintType type)
     throw std::runtime_error("failed to calculate fingerprint, digest result: " + std::to_string(result));
   }
 
-  std::vector<uint8_t> digest_vec;
-  digest_vec.assign(reinterpret_cast<uint8_t *>(digest), reinterpret_cast<uint8_t *>(digest) + digest_length);
+  std::vector<std::uint8_t> digest_vec;
+  digest_vec.assign(reinterpret_cast<std::uint8_t *>(digest), reinterpret_cast<std::uint8_t *>(digest) + digest_length);
   return {fingerprint_type_to_string(type), digest_vec};
 }
 
@@ -152,7 +156,7 @@ void generate_pem_self_signed_cert(const std::string &path)
   X509_set_pubkey(cert, private_key);
 
   auto *name = X509_get_subject_name(cert);
-  X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, reinterpret_cast<const unsigned char *>("Barrier"), -1, -1, 0);
+  X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, reinterpret_cast<const unsigned char *>("Deskflow"), -1, -1, 0);
   X509_set_issuer_name(cert, name);
 
   X509_sign(cert, private_key, EVP_sha256());
@@ -209,7 +213,7 @@ std::string create_fingerprint_randomart(const std::vector<std::uint8_t> &dgst_r
    */
   const char *augmentation_string = " .o+=*BOX@%&#/^SE";
   char *p;
-  uint8_t field[FLDSIZE_X][FLDSIZE_Y];
+  std::uint8_t field[FLDSIZE_X][FLDSIZE_Y];
   std::size_t i;
   std::uint32_t b;
   int x, y;
