@@ -78,7 +78,7 @@ const EVP_MD *get_digest_for_type(FingerprintType type)
 
 std::string format_ssl_fingerprint(const std::vector<uint8_t> &fingerprint, bool separator)
 {
-  std::string result = deskflow::string::toHex(fingerprint, 2);
+  std::string result = deskflow::string::to_hex(fingerprint, 2);
 
   // all uppercase
   deskflow::string::uppercase(result);
@@ -97,7 +97,7 @@ std::string format_ssl_fingerprint_columns(const std::vector<uint8_t> &fingerpri
 {
   auto max_columns = 8;
 
-  std::string hex = deskflow::string::toHex(fingerprint, 2);
+  std::string hex = deskflow::string::to_hex(fingerprint, 2);
   deskflow::string::uppercase(hex);
   if (hex.empty() || hex.size() % 2 != 0) {
     return hex;

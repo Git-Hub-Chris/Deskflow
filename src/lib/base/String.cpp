@@ -188,6 +188,44 @@ void toHex(std::string &subject, int width, const char fill)
   subject = ss.str();
 }
 
+std::string to_hex(const std::vector<std::uint8_t> &subject, int width, const char fill)
+{
+  std::stringstream ss;
+  ss << std::hex;
+  for (unsigned int i = 0; i < subject.size(); i++) {
+    ss << std::setw(width) << std::setfill(fill) << static_cast<int>(subject[i]);
+  }
+
+  return ss.str();
+}
+
+std::vector<std::uint8_t> from_hex(const std::string &data)
+{
+  std::vector<std::uint8_t> result;
+  result.reserve(data.size() / 2);
+
+  std::size_t i = 0;
+  while (i < data.size()) {
+    if (data[i] == ':') {
+      i++;
+      continue;
+    }
+
+    if (i + 2 > data.size()) {
+      return {}; // uneven character count follows, it's unclear how to interpret it
+    }
+
+    auto high = hex_to_number(data[i]);
+    auto low = hex_to_number(data[i + 1]);
+    if (high < 0 || low < 0) {
+      return {};
+    }
+    result.push_back(high * 16 + low);
+    i += 2;
+  }
+  return result;
+}
+
 void uppercase(std::string &subject)
 {
   std::transform(subject.begin(), subject.end(), subject.begin(), ::toupper);
