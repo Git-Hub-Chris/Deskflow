@@ -28,7 +28,13 @@ namespace {
 
 template <class Stream> void open_utf8_path_impl(Stream &stream, const fs::path &path, std::ios_base::openmode mode)
 {
+#if SYSAPI_WIN32
+  // on Windows we need to use a non-standard constructor from wchar_t* string
+  // which fs::path::native() returns
   stream.open(path.native().c_str(), mode);
+#else
+  stream.open(path.native().c_str(), mode);
+#endif
 }
 
 } // namespace
@@ -54,8 +60,7 @@ std::FILE *fopen_utf8_path(const fs::path &path, const std::string &mode)
   auto wchar_mode = utf8_to_win_char(mode);
   return _wfopen(path.native().c_str(), reinterpret_cast<wchar_t *>(wchar_mode.data()));
 #else
-  std::string narrow_path = path.string();
-  return std::fopen(narrow_path.c_str(), mode.c_str());
+  return std::fopen(path.native().c_str(), mode.c_str());
 #endif
 }
 

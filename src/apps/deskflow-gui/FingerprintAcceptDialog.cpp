@@ -21,7 +21,7 @@
 #include "ui_FingerprintAcceptDialog.h"
 
 FingerprintAcceptDialog::FingerprintAcceptDialog(
-    QWidget *parent, DeskflowType type, const deskflow::FingerprintData &fingerprint_sha1,
+    QWidget *parent, AppRole type, const deskflow::FingerprintData &fingerprint_sha1,
     const deskflow::FingerprintData &fingerprint_sha256
 )
     : QDialog(parent),
@@ -29,7 +29,7 @@ FingerprintAcceptDialog::FingerprintAcceptDialog(
 {
   ui_->setupUi(this);
 
-  if (type == DeskflowType::Server) {
+  if (type == AppRole::Server) {
     ui_->label_sha1->hide();
     ui_->label_sha1_fingerprint_full->hide();
   } else {
@@ -46,7 +46,7 @@ FingerprintAcceptDialog::FingerprintAcceptDialog(
   );
 
   QString explanation;
-  if (type == DeskflowType::Server) {
+  if (type == AppRole::Server) {
     explanation = tr("This is a client fingerprint. You should compare this "
                      "fingerprint to the one on your client's screen. If the "
                      "two don't match exactly, then it's probably not the client "

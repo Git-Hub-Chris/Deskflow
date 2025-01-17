@@ -16,10 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DESKFLOW_GUI_FINGERPRINT_ACCEPT_DIALOG_H
-#define DESKFLOW_GUI_FINGERPRINT_ACCEPT_DIALOG_H
+#pragma once
 
-#include "deskflow/DeskflowType.h"
+#include "inputleap/AppRole.h"
 #include "net/FingerprintData.h"
 #include <QDialog>
 #include <memory>
@@ -34,7 +33,7 @@ class FingerprintAcceptDialog : public QDialog
 
 public:
   explicit FingerprintAcceptDialog(
-      QWidget *parent, DeskflowType type, const deskflow::FingerprintData &fingerprint_sha1,
+      QWidget *parent, AppRole type, const deskflow::FingerprintData &fingerprint_sha1,
       const deskflow::FingerprintData &fingerprint_sha256
   );
   ~FingerprintAcceptDialog() override;
@@ -42,5 +41,3 @@ public:
 private:
   std::unique_ptr<Ui::FingerprintAcceptDialog> ui_;
 };
-
-#endif // DESKFLOW_GUI_FINGERPRINT_ACCEPT_DIALOG_H

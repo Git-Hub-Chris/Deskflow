@@ -13,7 +13,35 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
+   -----------------------------------------------------------------------
+    create_fingerprint_randomart() has been taken from the OpenSSH project.
+    Copyright information follows.
+
+    Copyright (c) 2000, 2001 Markus Friedl.  All rights reserved.
+    Copyright (c) 2008 Alexander von Gernler.  All rights reserved.
+    Copyright (c) 2010,2011 Damien Miller.  All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+    1. Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+    IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+    NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+    THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 #include "SecureUtils.h"
 #include "base/String.h"
@@ -29,12 +57,6 @@
 #include <openssl/x509v3.h>
 #include <stdexcept>
 
-#if SYSAPI_WIN32
-// Windows builds require a shim that makes it possible to link to different
-// versions of the Win32 C runtime. See OpenSSL FAQ.
-#include <openssl/applink.c>
-#endif
-
 namespace deskflow {
 
 namespace {
@@ -46,6 +68,8 @@ const EVP_MD *get_digest_for_type(FingerprintType type)
     return EVP_sha1();
   case FingerprintType::SHA256:
     return EVP_sha256();
+  default:
+    break;
   }
   throw std::runtime_error("Unknown fingerprint type " + std::to_string(static_cast<int>(type)));
 }
@@ -131,18 +155,33 @@ FingerprintData get_pem_file_cert_fingerprint(const std::string &path, Fingerpri
 void generate_pem_self_signed_cert(const std::string &path)
 {
   auto expiration_days = 365;
+  constexpr unsigned key_bits = 2048;
 
-  auto *private_key = EVP_PKEY_new();
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+  EVP_PKEY *private_key = EVP_PKEY_new();
   if (!private_key) {
     throw std::runtime_error("Could not allocate private key for certificate");
   }
-  auto private_key_free = finally([private_key]() { EVP_PKEY_free(private_key); });
-
-  auto *rsa = RSA_generate_key(2048, RSA_F4, nullptr, nullptr);
+#if OPENSSL_VERSION_NUMBER < 0x00908000L
+  RSA *rsa = RSA_generate_key(key_bits, RSA_F4, nullptr, nullptr);
   if (!rsa) {
     throw std::runtime_error("Failed to generate RSA key");
   }
+#else // OpenSSL ≥ 0.9.8 and < 3
+  BIGNUM *bignum = BN_new();
+  auto bignum_free = finally([bignum]() { BN_free(bignum); });
+
+  RSA *rsa = RSA_new();
+  if (!BN_set_word(bignum, RSA_F4) || !RSA_generate_key_ex(rsa, key_bits, bignum, nullptr)) {
+    RSA_free(rsa); // This is the only case where *rsa is not owned by *private_key
+    throw std::runtime_error("Failed to generate RSA key");
+  }
+#endif
   EVP_PKEY_assign_RSA(private_key, rsa);
+#else // OpenSSL ≥ 3
+  EVP_PKEY *private_key = EVP_RSA_gen(key_bits);
+#endif
+  auto private_key_free = finally([private_key]() { EVP_PKEY_free(private_key); });
 
   auto *cert = X509_new();
   if (!cert) {
@@ -212,12 +251,13 @@ std::string create_fingerprint_randomart(const std::vector<std::uint8_t> &dgst_r
    * intersects with itself.  Matter of taste.
    */
   const char *augmentation_string = " .o+=*BOX@%&#/^SE";
-  char *p;
   std::uint8_t field[FLDSIZE_X][FLDSIZE_Y];
   std::size_t i;
   std::uint32_t b;
   int x, y;
-  std::size_t len = strlen(augmentation_string) - 1;
+
+  // avoid compiler warning when comparing len to items in field array
+  std::uint8_t len = static_cast<uint8_t>(strlen(augmentation_string) - 1);
 
   std::vector<char> retval;
   retval.reserve((FLDSIZE_X + 3) * (FLDSIZE_Y + 2));

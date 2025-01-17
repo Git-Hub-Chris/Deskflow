@@ -17,7 +17,6 @@
  */
 
 #include "FingerprintDatabase.h"
-#include "base/String.h"
 #include "io/filesystem.h"
 #include <algorithm>
 #include <fstream>
@@ -38,6 +37,8 @@ const char *fingerprint_type_to_string(FingerprintType type)
     return "sha1";
   case FingerprintType::SHA256:
     return "sha256";
+  default:
+    break;
   }
   return "invalid";
 }

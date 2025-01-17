@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DESKFLOW_LIB_BASE_FINALLY_H
-#define DESKFLOW_LIB_BASE_FINALLY_H
+#pragma once
 
 #include <utility>
 
@@ -61,5 +60,3 @@ template <class Callable> inline final_action<Callable> finally(Callable &&calla
 }
 
 } // namespace deskflow
-
-#endif // DESKFLOW_LIB_BASE_FINALLY_H
