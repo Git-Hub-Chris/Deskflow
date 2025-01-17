@@ -43,7 +43,7 @@ target_link_libraries(
 if(WIN32)
   target_link_libraries(
     ${target}
-    base
     arch
+    base
   )
 endif()
