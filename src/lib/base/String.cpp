@@ -34,6 +34,7 @@
 
 namespace deskflow {
 namespace string {
+
 namespace {
 
 // returns negative in case of non-matching character
