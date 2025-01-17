@@ -34,7 +34,7 @@ enum FingerprintType
 struct FingerprintData
 {
   std::string algorithm;
-  std::vector<uint8_t> data;
+  std::vector<std::uint8_t> data;
 
   bool valid() const
   {

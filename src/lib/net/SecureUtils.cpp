@@ -29,12 +29,6 @@
 #include <openssl/x509v3.h>
 #include <stdexcept>
 
-#if SYSAPI_WIN32
-// Windows builds require a shim that makes it possible to link to different
-// versions of the Win32 C runtime. See OpenSSL FAQ.
-#include <openssl/applink.c>
-#endif
-
 namespace deskflow {
 
 namespace {
@@ -46,6 +40,8 @@ const EVP_MD *get_digest_for_type(FingerprintType type)
     return EVP_sha1();
   case FingerprintType::SHA256:
     return EVP_sha256();
+  default:
+    break;
   }
   throw std::runtime_error("Unknown fingerprint type " + std::to_string(static_cast<int>(type)));
 }
@@ -205,7 +201,7 @@ walked in either direction.
 #define FLDSIZE_Y (FLDBASE + 1)
 #define FLDSIZE_X (FLDBASE * 2 + 1)
 
-std::string create_fingerprint_randomart(const std::vector<uint8_t> &dgst_raw)
+std::string create_fingerprint_randomart(const std::vector<std::uint8_t> &dgst_raw)
 {
   /*
    * Chars to be used after each other every time the worm
