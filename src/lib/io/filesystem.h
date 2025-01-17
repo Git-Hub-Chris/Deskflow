@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DESKFLOW_LIB_IO_FILESYSTEM_H
-#define DESKFLOW_LIB_IO_FILESYSTEM_H
+#pragma once
 
 #include <cstdio>
 #include <filesystem>
@@ -37,5 +36,3 @@ void open_utf8_path(
 std::FILE *fopen_utf8_path(const fs::path &path, const std::string &mode);
 
 } // namespace deskflow
-
-#endif // DESKFLOW_LIB_IO_FILESYSTEM_H

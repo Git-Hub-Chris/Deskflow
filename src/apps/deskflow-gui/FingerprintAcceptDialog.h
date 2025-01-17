@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DESKFLOW_GUI_FINGERPRINT_ACCEPT_DIALOG_H
-#define DESKFLOW_GUI_FINGERPRINT_ACCEPT_DIALOG_H
+#pragma once
 
 #include "deskflow/DeskflowType.h"
 #include "net/FingerprintData.h"
@@ -42,5 +41,3 @@ public:
 private:
   std::unique_ptr<Ui::FingerprintAcceptDialog> ui_;
 };
-
-#endif // DESKFLOW_GUI_FINGERPRINT_ACCEPT_DIALOG_H

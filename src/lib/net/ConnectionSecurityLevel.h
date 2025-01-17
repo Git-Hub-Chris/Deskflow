@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DESKFLOW_LIB_NET_CONNECTION_SECURITY_LEVEL_H
-#define DESKFLOW_LIB_NET_CONNECTION_SECURITY_LEVEL_H
+#pragma once
 
 enum class ConnectionSecurityLevel
 {
@@ -25,5 +24,3 @@ enum class ConnectionSecurityLevel
   ENCRYPTED,
   ENCRYPTED_AUTHENTICATED
 };
-
-#endif // DESKFLOW_LIB_NET_CONNECTION_SECURITY_LEVEL_H

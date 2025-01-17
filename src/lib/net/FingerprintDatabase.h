@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DESKFLOW_LIB_NET_FINGERPRINT_DATABASE_H
-#define DESKFLOW_LIB_NET_FINGERPRINT_DATABASE_H
+#pragma once
 
 #include "FingerprintData.h"
 #include "io/filesystem.h"
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace deskflow
-
-#endif // DESKFLOW_LIB_NET_FINGERPRINT_DATABASE_H

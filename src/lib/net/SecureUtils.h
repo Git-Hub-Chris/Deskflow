@@ -15,18 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DESKFLOW_LIB_NET_SECUREUTILS_H
-#define DESKFLOW_LIB_NET_SECUREUTILS_H
+#pragma once
 
 #include "FingerprintData.h"
 #include <cstdint>
-#include <openssl/types.h>
+#include <openssl/ossl_types.h>
 #include <string>
 #include <vector>
 
 namespace deskflow {
 
 std::string format_ssl_fingerprint(const std::vector<uint8_t> &fingerprint, bool separator = true);
+
 std::string format_ssl_fingerprint_columns(const std::vector<uint8_t> &fingerprint);
 
 FingerprintData get_ssl_cert_fingerprint(X509 *cert, FingerprintType type);
@@ -38,5 +38,3 @@ void generate_pem_self_signed_cert(const std::string &path);
 std::string create_fingerprint_randomart(const std::vector<uint8_t> &dgst_raw);
 
 } // namespace deskflow
-
-#endif // DESKFLOW_LIB_NET_SECUREUTILS_H
