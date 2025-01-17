@@ -57,10 +57,10 @@ void open_utf8_path(std::fstream &stream, const fs::path &path, std::ios_base::o
 std::FILE *fopen_utf8_path(const fs::path &path, const std::string &mode)
 {
 #if SYSAPI_WIN32
- std::wstring wpath = path.native(); 
-  std::wstring wmode(mode.begin(), mode.end()); 
-  
-return _wfopen(wpath.c_str(), wmode.c_str());
+  std::wstring wpath = path.native();
+  std::wstring wmode(mode.begin(), mode.end());
+
+  return _wfopen(wpath.c_str(), wmode.c_str());
 #else
   return std::fopen(path.native().c_str(), mode.c_str());
 #endif
