@@ -59,8 +59,6 @@ private:
   HINSTANCE m_appInstance;
   HWND m_window;
   HMENU m_menu;
-  HICON m_icon[kMaxState];
+  HICON m_icon;
   const BufferedLogOutputter *m_logBuffer;
-
-  static const UINT s_stateToIconID[];
 };
