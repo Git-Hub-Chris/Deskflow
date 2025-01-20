@@ -46,8 +46,17 @@ SettingsDialog::SettingsDialog(
 
   ui->setupUi(this);
 
+  ui->m_pComboBoxTlsKeyLength->setItemIcon(0, QIcon::fromTheme(QIcon::ThemeIcon::SecurityLow));
+  ui->m_pComboBoxTlsKeyLength->setItemIcon(1, QIcon::fromTheme(QStringLiteral("security-medium")));
+  ui->m_pComboBoxTlsKeyLength->setItemIcon(2, QIcon::fromTheme(QIcon::ThemeIcon::SecurityHigh));
+
+  ui->m_pPushButtonTlsRegenCert->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::ViewRefresh));
+
   ui->m_pPushButtonTlsCertPath->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen));
   ui->m_pButtonBrowseLog->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen));
+
+  ui->rb_icon_mono->setIcon(QIcon(QStringLiteral(":/icons/deskflow-%1/apps/64/deskflow-symbolic").arg(iconMode())));
+  ui->rb_icon_colorful->setIcon(QIcon(QStringLiteral(":/icons/deskflow-%1/apps/64/deskflow").arg(iconMode())));
 
   // force the first tab, since qt creator sets the active tab as the last one
   // the developer was looking at, and it's easy to accidentally save that.
@@ -243,7 +252,6 @@ void SettingsDialog::loadFromConfig()
     ui->rb_icon_colorful->setChecked(true);
   else
     ui->rb_icon_mono->setChecked(true);
-  ui->rb_icon_mono->setIcon(QIcon(QStringLiteral(":/icons/deskflow-%1/apps/64/deskflow-symbolic").arg(iconMode())));
 
   updateTlsControls();
 }

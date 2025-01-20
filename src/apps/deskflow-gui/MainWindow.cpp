@@ -80,7 +80,7 @@ MainWindow::MainWindow(ConfigScopes &configScopes, AppConfig &appConfig)
       m_guiDupeChecker{new QLocalServer(this)},
       m_actionAbout{new QAction(this)},
       m_actionClearSettings{new QAction(tr("Clear settings"), this)},
-      m_actionHelp{new QAction(tr("Report a Bug"), this)},
+      m_actionReportBug{new QAction(tr("Report a Bug"), this)},
       m_actionMinimize{new QAction(tr("&Minimize to tray"), this)},
       m_actionQuit{new QAction(tr("&Quit"), this)},
       m_actionTrayQuit{new QAction(tr("&Quit"), this)},
@@ -99,9 +99,11 @@ MainWindow::MainWindow(ConfigScopes &configScopes, AppConfig &appConfig)
     QIcon::setFallbackThemeName(themeName);
 
   ui->setupUi(this);
+
   // Setup Actions
   m_actionAbout->setText(tr("About %1...").arg(kAppName));
   m_actionAbout->setMenuRole(QAction::AboutRole);
+  m_actionAbout->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
 
 #ifndef Q_OS_WIN
   m_actionQuit->setShortcut(QKeySequence::Quit);
@@ -112,10 +114,24 @@ MainWindow::MainWindow(ConfigScopes &configScopes, AppConfig &appConfig)
 #endif
   m_actionQuit->setMenuRole(QAction::QuitRole);
 
+  m_actionQuit->setIcon(QIcon(QIcon::fromTheme("application-exit")));
+  m_actionTrayQuit->setIcon(QIcon(QIcon::fromTheme("application-exit")));
+
+  m_actionClearSettings->setIcon(QIcon::fromTheme(QStringLiteral("edit-clear-all")));
+
   m_actionSettings->setMenuRole(QAction::PreferencesRole);
+  m_actionSettings->setIcon(QIcon::fromTheme(QStringLiteral("configure")));
+
   m_actionSave->setShortcut(QKeySequence(tr("Ctrl+Alt+S")));
+  m_actionSave->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSaveAs));
+
   m_actionStartCore->setShortcut(QKeySequence(tr("Ctrl+S")));
+  m_actionStartCore->setIcon(QIcon::fromTheme(QStringLiteral("system-run")));
+
   m_actionStopCore->setShortcut(QKeySequence(tr("Ctrl+T")));
+  m_actionStopCore->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::ProcessStop));
+
+  m_actionReportBug->setIcon(QIcon(QIcon::fromTheme(QStringLiteral("tools-report-bug"))));
 
 #ifdef Q_OS_MAC
   ui->btnToggleLog->setFixedHeight(ui->lblLog->height() * 0.6);
@@ -258,7 +274,7 @@ void MainWindow::connectSlots()
 
   connect(m_actionAbout, &QAction::triggered, this, &MainWindow::openAboutDialog);
   connect(m_actionClearSettings, &QAction::triggered, this, &MainWindow::clearSettings);
-  connect(m_actionHelp, &QAction::triggered, this, &MainWindow::openHelpUrl);
+  connect(m_actionReportBug, &QAction::triggered, this, &MainWindow::openHelpUrl);
   connect(m_actionMinimize, &QAction::triggered, this, &MainWindow::hide);
 
   connect(m_actionQuit, &QAction::triggered, this, &MainWindow::close);
@@ -570,7 +586,7 @@ void MainWindow::createMenuBar()
 
   auto menuHelp = new QMenu(tr("Help"));
   menuHelp->addAction(m_actionAbout);
-  menuHelp->addAction(m_actionHelp);
+  menuHelp->addAction(m_actionReportBug);
   menuHelp->addSeparator();
   menuHelp->addAction(m_actionClearSettings);
 
@@ -847,6 +863,8 @@ void MainWindow::onCoreProcessStateChanged(CoreProcessState state)
     connect(ui->btnToggleCore, &QPushButton::clicked, m_actionStopCore, &QAction::trigger, Qt::UniqueConnection);
 
     ui->btnToggleCore->setText(tr("&Stop"));
+    ui->btnToggleCore->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::ProcessStop));
+
     ui->btnApplySettings->setEnabled(true);
 
     m_actionStartCore->setEnabled(false);
@@ -857,6 +875,8 @@ void MainWindow::onCoreProcessStateChanged(CoreProcessState state)
     connect(ui->btnToggleCore, &QPushButton::clicked, m_actionStartCore, &QAction::trigger, Qt::UniqueConnection);
 
     ui->btnToggleCore->setText(tr("&Start"));
+    ui->btnToggleCore->setIcon(QIcon::fromTheme(QStringLiteral("system-run")));
+
     ui->btnApplySettings->setEnabled(false);
 
     m_actionStartCore->setEnabled(true);
