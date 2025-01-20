@@ -34,10 +34,6 @@
 // MSWindowsServerTaskBarReceiver
 //
 
-const UINT MSWindowsServerTaskBarReceiver::s_stateToIconID[kMaxState] = {
-    IDI_TASKBAR_NOT_RUNNING, IDI_TASKBAR_NOT_WORKING, IDI_TASKBAR_NOT_CONNECTED, IDI_TASKBAR_CONNECTED
-};
-
 MSWindowsServerTaskBarReceiver::MSWindowsServerTaskBarReceiver(
     HINSTANCE appInstance, const BufferedLogOutputter *logBuffer, IEventQueue *events
 )
@@ -47,9 +43,7 @@ MSWindowsServerTaskBarReceiver::MSWindowsServerTaskBarReceiver(
       m_window(NULL),
       m_logBuffer(logBuffer)
 {
-  for (uint32_t i = 0; i < kMaxState; ++i) {
-    m_icon[i] = loadIcon(s_stateToIconID[i]);
-  }
+  m_icon = loadIcon(IDI_TASKBAR_ICON);
   m_menu = LoadMenu(m_appInstance, MAKEINTRESOURCE(IDR_TASKBAR));
 
   // don't create the window yet.  we'll create it on demand.  this
@@ -64,9 +58,7 @@ MSWindowsServerTaskBarReceiver::MSWindowsServerTaskBarReceiver(
 void MSWindowsServerTaskBarReceiver::cleanup()
 {
   ARCH->removeReceiver(this);
-  for (uint32_t i = 0; i < kMaxState; ++i) {
-    deleteIcon(m_icon[i]);
-  }
+  deleteIcon(m_icon);
   DestroyMenu(m_menu);
   destroyWindow();
 }
@@ -231,7 +223,7 @@ void MSWindowsServerTaskBarReceiver::primaryAction()
 
 IArchTaskBarReceiver::Icon MSWindowsServerTaskBarReceiver::getIcon() const
 {
-  return static_cast<Icon>(m_icon[getStatus()]);
+  return static_cast<Icon>(m_icon);
 }
 
 void MSWindowsServerTaskBarReceiver::copyLog() const

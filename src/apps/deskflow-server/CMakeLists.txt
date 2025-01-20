@@ -24,10 +24,7 @@ if(WIN32)
   set(EXE_ICON "
 #include \"${CMAKE_CURRENT_SOURCE_DIR}/resource.h\"
     IDI_DESKFLOW              ICON  DISCARDABLE  \"${CMAKE_SOURCE_DIR}/src/apps/res/deskflow.ico\"
-    IDI_TASKBAR_NOT_RUNNING   ICON  DISCARDABLE  \"${CMAKE_SOURCE_DIR}/src/apps/res/tb_idle.ico\"
-    IDI_TASKBAR_NOT_WORKING   ICON  DISCARDABLE  \"${CMAKE_SOURCE_DIR}/src/apps/res/tb_error.ico\"
-    IDI_TASKBAR_NOT_CONNECTED ICON  DISCARDABLE  \"${CMAKE_SOURCE_DIR}/src/apps/res/deskflow.ico\"
-    IDI_TASKBAR_CONNECTED     ICON  DISCARDABLE  \"${CMAKE_SOURCE_DIR}/src/apps/res/tb_run.ico\"
+    IDI_TASKBAR_ICON          ICON  DISCARDABLE  \"${CMAKE_SOURCE_DIR}/src/apps/res/deskflow.ico\"
   ")
 
   set(EXE_RC_DIALOG "
@@ -84,9 +81,6 @@ if(WIN32)
     MSWindowsServerTaskBarReceiver.h
     resource.h
     ${PROJECT_SOURCE_DIR}/src/apps/res/deskflow.ico
-    ${PROJECT_SOURCE_DIR}/src/apps/res/tb_error.ico
-    ${PROJECT_SOURCE_DIR}/src/apps/res/tb_idle.ico
-    ${PROJECT_SOURCE_DIR}/src/apps/res/tb_run.ico
     ${CMAKE_CURRENT_BINARY_DIR}/${target}.rc
   )
 elseif(APPLE)
