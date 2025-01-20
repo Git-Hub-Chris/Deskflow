@@ -1,5 +1,6 @@
 /*
  * Deskflow -- mouse and keyboard sharing utility
+ * Copyright (C) 2024 Deskflow Developers
  * Copyright (C) 2015-2016 Symless Ltd.
  *
  * This package is free software; you can redistribute it and/or
@@ -54,6 +55,7 @@ enum
 // TODO: Reduce duplication of these strings between here and TlsFingerprint.cpp
 static const char kFingerprintDirName[] = "tls";
 static const char kFingerprintTrustedServersFilename[] = "trusted-servers";
+static const char kFingerprintTrustedClientsFilename[] = "trusted-clients";
 
 struct Ssl
 {
@@ -62,20 +64,25 @@ struct Ssl
 };
 
 SecureSocket::SecureSocket(
-    IEventQueue *events, SocketMultiplexer *socketMultiplexer, IArchNetwork::EAddressFamily family
+    IEventQueue *events, SocketMultiplexer *socketMultiplexer, IArchNetwork::EAddressFamily family,
+    SecurityLevel securityLevel
 )
     : TCPSocket(events, socketMultiplexer, family),
       m_ssl(nullptr),
       m_secureReady(false),
-      m_fatal(false)
+      m_fatal(false),
+      m_securityLevel{securityLevel}
 {
 }
 
-SecureSocket::SecureSocket(IEventQueue *events, SocketMultiplexer *socketMultiplexer, ArchSocket socket)
+SecureSocket::SecureSocket(
+    IEventQueue *events, SocketMultiplexer *socketMultiplexer, ArchSocket socket, SecurityLevel securityLevel
+)
     : TCPSocket(events, socketMultiplexer, socket),
       m_ssl(nullptr),
       m_secureReady(false),
-      m_fatal(false)
+      m_fatal(false),
+      m_securityLevel{securityLevel}
 {
 }
 
@@ -346,6 +353,11 @@ bool SecureSocket::loadCertificates(std::string &filename)
   return true;
 }
 
+static int cert_verify_ignore_callback(X509_STORE_CTX *, void *)
+{
+  return 1;
+}
+
 void SecureSocket::initContext(bool server)
 {
   SSL_library_init();
@@ -375,6 +387,13 @@ void SecureSocket::initContext(bool server)
 
   if (m_ssl->m_context == NULL) {
     SslLogger::logError();
+  }
+
+  if (m_securityLevel == SecurityLevel::PeerAuth_And_Encrypted) {
+    // We want to ask for peer certificate, but not verify it. If we don't ask for peer
+    // certificate, e.g. client won't send it.
+    SSL_CTX_set_verify(m_ssl->m_context, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
+    SSL_CTX_set_cert_verify_callback(m_ssl->m_context, cert_verify_ignore_callback, nullptr);
   }
 }
 
@@ -441,6 +460,13 @@ int SecureSocket::secureAccept(int socket)
 
   // If not fatal and no retry, state is good
   if (retry == 0) {
+    if (m_securityLevel == SecurityLevel::PeerAuth_And_Encrypted) {
+      if (!verifyCertFingerprint()) {
+        retry = 0;
+        disconnect();
+        return -1; // Fail
+      }
+    }
     m_secureReady = true;
     LOG((CLOG_INFO "accepted secure socket"));
     SslLogger::logSecureCipherInfo(m_ssl->m_ssl);
@@ -464,6 +490,15 @@ int SecureSocket::secureAccept(int socket)
 int SecureSocket::secureConnect(int socket)
 {
   std::lock_guard<std::mutex> ssl_lock{ssl_mutex_};
+
+  std::string certDir = deskflow::string::sprintf("%s/%s", ARCH->getProfileDirectory().c_str(), kFingerprintDirName);
+
+  if (!loadCertificates(certDir)) {
+    LOG((CLOG_ERR "could not load client certificates"));
+    // FIXME: this is fatal
+    disconnect();
+    return -1;
+  }
 
   createSSL();
 
@@ -658,7 +693,7 @@ bool SecureSocket::verifyCertFingerprint()
   // format fingerprint into hexdecimal format with colon separator
   std::string fingerprint(static_cast<char *>(static_cast<void *>(tempFingerprint)), tempFingerprintLen);
   formatFingerprint(fingerprint);
-  LOG((CLOG_NOTE "server fingerprint: %s", fingerprint.c_str()));
+  LOG((CLOG_NOTE "peer fingerprint: %s", fingerprint.c_str()));
 
   std::string trustedServersFilename;
   trustedServersFilename = deskflow::string::sprintf(
